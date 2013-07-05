@@ -1,0 +1,59 @@
+﻿EASInspector
+
+This is an inspector which can be used with Fiddler.  
+
+To compile:
+	Install Fiddler 2.4.4.5 or later.
+
+	Check the Post-event command line settings on the Build Events tab of the project's 
+	properties to be sure that the paths map to the Inspector folder of fiddler.
+
+	Run Visual Studio 2010 with Admin privlidges. This is needed for the copying of the
+	application DDL to Fiddler's Inspector folder.
+
+When this is run you should see an "EAS XML" tab listed in Fiddler.  When ActiveSync content is 
+being viewed you should see the decoded content in the inspector.
+
+
+Most of the code comes from the Exchange Server Interoperability Guidance samples for Activesync, in particular:
+
+	Implementing an Exchange ActiveSync client: the transport mechanism
+	http://msdn.microsoft.com/en-us/library/exchange/hh361570(v=exchg.140).aspx
+
+Details on the ActiveSync protocol can be found here:
+
+	Exchange Server Protocol Documents
+	http://msdn.microsoft.com/en-us/library/cc425499(v=exchg.80).aspx 
+
+Here is information on licensing:
+
+	Technology Licensing Programs
+	http://www.microsoft.com/about/legal/en/us/IntellectualProperty/IPLicensing/Programs/Default.aspx
+
+	Exchange ActiveSync Protocol
+	http://www.microsoft.com/about/legal/en/us/IntellectualProperty/IPLicensing/Programs/ExchangeActiveSyncProtocol.aspx
+
+	Microsoft Expands Exchange ActiveSync Licensing Program
+	http://www.microsoft.com/presspass/press/2008/dec08/12-18easlicencingpr.mspx
+ 
+This article covers basic information on ActiveSync:
+
+	New to Exchange ActiveSync Development?
+ 	http://blogs.msdn.com/b/webdav_101/archive/2011/09/28/new-to-exchange-activesync-development.aspx 
+
+ 
+--------------------
+NOTE:
+
+This code is not supported by anyone and exists purely for educational purposes.  If you are building an ActiveSync 
+application which is going to be commercialized then you really need to look into licensing.
+
+--------------------
+History:
+--------------------
+
+7/5/2013
+Got code to work. 
+Initial check-in.
+
+1.0 Release
