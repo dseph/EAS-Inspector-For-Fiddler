@@ -11,6 +11,9 @@ To compile:
 	Run Visual Studio 2010 with Admin privlidges. This is needed for the copying of the
 	application DDL to Fiddler's Inspector folder.
 
+	Check and set the reference to Fiddler to match the path to the Fiddler.exe 
+	installed on your system.
+
 When this is run you should see an "EAS XML" tab listed in Fiddler.  When ActiveSync content is 
 being viewed you should see the decoded content in the inspector.
 
