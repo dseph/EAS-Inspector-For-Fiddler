@@ -74,7 +74,7 @@ namespace EASView
         {
             string sContentType = GetContentType();
 
-            if (sContentType == "application/vnd.ms-sync.wbxml")
+            if (sContentType.StartsWith("application/vnd.ms-sync"))
             {
                 try
                 {
@@ -85,7 +85,7 @@ namespace EASView
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("Error in EAS decoding: \r\n" + ex.ToString());
+                   MessageBox.Show(ex.ToString(), "Error in decoding EAS body.");
                 }
 
             }
