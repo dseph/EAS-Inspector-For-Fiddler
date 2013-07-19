@@ -24,6 +24,14 @@ namespace EASView
         
         public void SetText(string text)
         {
+            // mstehle - 7/19/2013 - Ran into a response were text had "\0\0" in the ConversationIndex element
+            // the TextBox and RichTextBox controls will truncate the display
+            if (text.Contains("\0\0"))
+            {
+                Debug.WriteLine("Cleaning up double null to make sure all data is displayed in text box.");
+                text = text.Replace("\0\0", "    ");
+            }
+
             txtEasResults.Text = text;
         }
 
