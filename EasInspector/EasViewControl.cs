@@ -28,7 +28,7 @@ namespace EASView
             // the TextBox and RichTextBox controls will truncate the display
             if (text.Contains("\0\0"))
             {
-                Debug.WriteLine("Cleaning up double null to make sure all data is displayed in text box.");
+                System.Diagnostics.Debug.WriteLine("Cleaning up double null to make sure all data is displayed in text box.");
                 text = text.Replace("\0\0", "    ");
             }
 
