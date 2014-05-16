@@ -67,3 +67,11 @@ so that it only decoded application/vnd.ms-sync.wbxml content.  It will now deco
 content type starting with application/vnd.ms-sync
  
 1.1 Released.
+
+5/16/2014
++ Autoselection of inspector when hitting enter or double-clicking a session
++ Updated error handling
++ Experimental tips system to be fleshed out further in the future
++ Autodecoding of GZIP and chunked sessions
+
+1.2 Released
