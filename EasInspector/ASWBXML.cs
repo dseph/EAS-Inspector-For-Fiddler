@@ -33,8 +33,6 @@ namespace VisualSync
         LITERAL_AC = 0xC4
     }
 
-
-
     partial class ASWBXML
     {
         const byte versionByte = 0x03;
@@ -944,7 +942,6 @@ namespace VisualSync
                 byteList.AddRange(oBytes);
             }
 
-
             return byteList.ToArray();
         }
 
@@ -1137,6 +1134,5 @@ namespace VisualSync
             return byteList.ToArray();
         }
     }
-
 }
 

@@ -13,7 +13,11 @@ namespace EASView
         public HTTPResponseHeaders headers
         {
             get { return savedResponseHeaders; }
-            set { savedResponseHeaders = value; }
+            set
+            {
+                savedResponseHeaders = value;
+                this.SessionType = SessionTypeEnum.Response;
+            }
         }
 
         protected override string GetContentType()
@@ -28,6 +32,12 @@ namespace EASView
                 result = string.Empty;
             }
             return result;
+        }
+
+        public override bool DecodeBody()
+        {
+            // This Fiddler method will permanently update the body and headers
+            return this.session.utilDecodeResponse(true);
         }
     }
 }

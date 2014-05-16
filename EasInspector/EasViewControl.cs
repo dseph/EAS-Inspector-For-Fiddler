@@ -21,7 +21,6 @@ namespace EASView
             this.Dock = DockStyle.Fill;
         }
 
-        
         public void SetText(string text)
         {
             // mstehle - 7/19/2013 - Ran into a response were text had "\0\0" in the ConversationIndex element
@@ -33,6 +32,15 @@ namespace EASView
             }
 
             txtEasResults.Text = text;
+        }
+
+        /// <summary>
+        /// Appends text to the results window, separated by a newline (\r\n)
+        /// </summary>
+        /// <param name="text">String value to append</param>
+        public void AppendLine(string text)
+        {
+            SetText(txtEasResults.Text + "\r\n" + text);
         }
 
         //// https://tangoxmlview.codeplex.com/SourceControl/latest#FiddlerExtension/FiddlerExtension/RequestDisplayControl.cs

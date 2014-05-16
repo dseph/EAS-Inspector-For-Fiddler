@@ -67,18 +67,22 @@ namespace VisualSync
             {
                 ASWBXML decoder = new ASWBXML();
 
-
-                decoder.LoadBytes(wbxml);
-                return decoder.GetXml();
+                if (wbxml.Length > 0)
+                {
+                    decoder.LoadBytes(wbxml);
+                    return decoder.GetXml();
+                }
+                else
+                {
+                    return "Empty Body\r\nThe body is empty.";
+                }
             }
             catch (Exception ex)
             {
-                System.Windows.Forms.MessageBox.Show(ex.Message, "Error calling DecodeWBXML");
+                //System.Windows.Forms.MessageBox.Show(ex.Message, "Error calling DecodeWBXML");
                 //VSError.ReportException(ex);
-                return "";
+                return "Error decoding the WBXML\r\nException: " + ex.Message;
             }
         }
-
-
     }
 }

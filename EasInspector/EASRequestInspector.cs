@@ -13,7 +13,11 @@ namespace EASView
         public HTTPRequestHeaders headers
         {
             get { return saveRequestHeaders; }
-            set { saveRequestHeaders = value; }
+            set
+            {
+                saveRequestHeaders = value;
+                this.SessionType = SessionTypeEnum.Request;
+            }
         }
 
         protected override string GetContentType()
@@ -29,8 +33,11 @@ namespace EASView
             }
             return result;
         }
+
+        public override bool DecodeBody()
+        {
+            // This Fiddler method will permanently update the body and headers
+            return this.session.utilDecodeRequest(true);
+        }
     }
-
-
-
 }
