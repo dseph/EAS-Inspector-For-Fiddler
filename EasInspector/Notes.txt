@@ -74,4 +74,4 @@ content type starting with application/vnd.ms-sync
 + Experimental tips system to be fleshed out further in the future
 + Autodecoding of GZIP and chunked sessions
 
-1.2 Released
+1.2 Released  5/16/2014
