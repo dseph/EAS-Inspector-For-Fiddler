@@ -75,3 +75,8 @@ content type starting with application/vnd.ms-sync
 + Auto-decoding of GZIP and chunked sessions
 
 1.2 Released  5/16/2014
+
+10/29/2014
++ Added "Smart" view, parsing some basic quoted-printable content and displaying the XML in an invalid, but easier to read format.
++ Added a toggle button to switch between Smart View and the original Raw View
++ Added more diagnostic information
