@@ -51,6 +51,7 @@ namespace EASView
             // Create a new StringBuilder since StringBuilder.Clear() isn't around until .NET 4.0
             ////this.sb.Clear();
             this.sb = new StringBuilder();
+            this.txtEasResults.Text = string.Empty;
             this.browser.Document.OpenNew(true);
         }
 
