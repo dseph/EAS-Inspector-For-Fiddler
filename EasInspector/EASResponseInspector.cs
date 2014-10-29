@@ -1,43 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-
-using System.Text;
-using Fiddler;
-
-namespace EASView
+﻿namespace EASView
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using Fiddler;
+
+    /// <summary>
+    /// Request inspector derived from EASInspector and
+    /// implementing Fiddler.IResponseInspector2
+    /// </summary>
     public class EASResponseInspector : EASInspector, IResponseInspector2
     {
-        HTTPResponseHeaders savedResponseHeaders;
-
+        /// <summary>
+        /// Gets or sets the headers from the frame
+        /// </summary>
         public HTTPResponseHeaders headers
         {
-            get { return savedResponseHeaders; }
+            get
+            {
+                return this.BaseHeaders as HTTPResponseHeaders;
+            }
+
             set
             {
-                savedResponseHeaders = value;
-                this.SessionType = SessionTypeEnum.Response;
+                this.BaseHeaders = value;
             }
-        }
-
-        protected override string GetContentType()
-        {
-            string result;
-            try
-            {
-                result = savedResponseHeaders["Content-Type"];
-            }
-            catch (Exception)
-            {
-                result = string.Empty;
-            }
-            return result;
-        }
-
-        public override bool DecodeBody()
-        {
-            // This Fiddler method will permanently update the body and headers
-            return this.session.utilDecodeResponse(true);
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
 using System.Net;
 using System.Text;
+using System.Xml;
 using VisualSync;
 
 namespace VisualSync
@@ -29,6 +29,9 @@ namespace VisualSync
             }
         }
 
+        public XmlDocument XmlDoc;
+
+        /*
         public ASCommandResponse(HttpWebResponse httpResponse)
         {
             Stream responseStream = httpResponse.GetResponseStream();
@@ -52,36 +55,25 @@ namespace VisualSync
 
             wbxmlBytes = bytes.ToArray();
 
-            xmlString = DecodeWBXML(wbxmlBytes);
+            DecodeWBXML(wbxmlBytes);
         }
+        */
 
         public ASCommandResponse(byte[] wbxml)
         {
             wbxmlBytes = wbxml;
-            xmlString = DecodeWBXML(wbxmlBytes);
-        }
 
-        private string DecodeWBXML(byte[] wbxml)
-        {
-            try
-            {
-                ASWBXML decoder = new ASWBXML();
+            ASWBXML decoder = new ASWBXML();
 
-                if (wbxml.Length > 0)
-                {
-                    decoder.LoadBytes(wbxml);
-                    return decoder.GetXml();
-                }
-                else
-                {
-                    return "Empty Body\r\nThe body is empty.";
-                }
-            }
-            catch (Exception ex)
+            if (wbxml.Length > 0)
             {
-                //System.Windows.Forms.MessageBox.Show(ex.Message, "Error calling DecodeWBXML");
-                //VSError.ReportException(ex);
-                return "Error decoding the WBXML\r\nException: " + ex.Message;
+                // Decode without smart view parsing
+                decoder.LoadBytes(wbxml);
+                xmlString = decoder.GetXml();
+
+                // Decode with smart view parsing
+                decoder.LoadBytes(wbxml, true);
+                XmlDoc = decoder.GetXmlDoc();
             }
         }
     }

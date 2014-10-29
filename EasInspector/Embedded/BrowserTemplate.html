@@ -1,0 +1,155 @@
+﻿<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>EAS Inspector for Fiddler</title>
+    <style>
+        body {
+            font: 10pt Consolas,Courier New;
+            margin-right: 1.5em;
+            background-color: #f0f0f0;
+        }
+        .level1 {margin-left: 3em;}
+        .c {cursor: pointer;}
+        .b {
+            color: red;
+            font-family: 'Courier New';
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .e {
+            margin-left: 1em;
+            text-indent: -1em;
+            margin-right: 1em;
+        }
+        .k {
+            margin-left: 1em;
+            text-indent: -1em;
+            margin-right: 1em;
+        }
+        .t {color: #990000;}
+        .xt {color: #990099;}
+        .ns {color: red;}
+        .dt {color: green;}
+        .m {color: blue;}
+        .comment {color: #008000;}
+        .tx {font-weight: bold;}
+        .di {
+            font: small Courier;
+        }
+
+        .d {
+            color: blue;
+        }
+
+        .pi {
+            color: blue;
+        }
+
+        code {
+            font: 9pt "Lucida Console", "Courier New", monospace;
+        }
+        .db {
+            text-indent: 0px;
+            margin-left: 1em;
+            margin-top: 0px;
+            margin-bottom: 0px;
+            padding-left: .3em;
+            border-left: 1px solid #CCCCCC;
+            font: small Courier;
+        }
+        .cb {
+            text-indent: 0px;
+            margin-left: 1em;
+            margin-top: 0px;
+            margin-bottom: 0px;
+            padding-left: .3em;
+            font: small Courier;
+            color: #888888;
+        }
+        .ci {
+            font: small Courier;
+            color: #888888;
+        }
+        pre {
+            margin: 0px;
+            display: inline;
+        }
+    </style>
+    <script type="text/javascript">
+        function f(e) {
+            if (e.className == "ci") {
+                if (e.children(0).innerText.indexOf("\n") > 0) fix(e, "cb");
+            }
+            if (e.className == "di") {
+                if (e.children(0).innerText.indexOf("\n") > 0) fix(e, "db");
+            } e.id = "";
+        }
+        function fix(e, cl) {
+            e.className = cl;
+            e.style.display = "block";
+            j = e.parentElement.children(0);
+            j.className = "c";
+            k = j.children(0);
+            k.style.visibility = "visible";
+            k.href = "#";
+        }
+        function ch(e) {
+            mark = e.children(0).children(0);
+            if (mark.innerText == "+") {
+                mark.innerText = "-";
+                for (var i = 1; i < e.children.length; i++) {
+                    e.children(i).style.display = "block";
+                }
+            }
+            else if (mark.innerText == "-") {
+                mark.innerText = "+";
+                for (var i = 1; i < e.children.length; i++) {
+                    e.children(i).style.display = "none";
+                }
+            }
+        }
+        function ch2(e) {
+            mark = e.children(0).children(0);
+            contents = e.children(1);
+            if (mark.innerText == "+") {
+                mark.innerText = "-";
+                if (contents.className == "db" || contents.className == "cb") {
+                    contents.style.display = "block";
+                }
+                else {
+                    contents.style.display = "inline";
+                }
+            }
+            else if (mark.innerText == "-") {
+                mark.innerText = "+";
+                contents.style.display = "none";
+            }
+        }
+        function cl() {
+            e = window.event.srcElement;
+            if (e.className == 'nojs') {
+                return;
+            }
+            if (e.className != "c") {
+                e = e.parentElement;
+                if (e.className != "c") {
+                    return;
+                }
+            }
+            e = e.parentElement;
+            if (e.className == "e") {
+                ch(e);
+            }
+            if (e.className == "k") {
+                ch2(e);
+            }
+        }
+        function ex() { }
+        function h() { window.status = " "; }
+        document.onclick = cl;
+    </script>
+</head>
+<body>
+##ParsedData##
+</body>
+</html>

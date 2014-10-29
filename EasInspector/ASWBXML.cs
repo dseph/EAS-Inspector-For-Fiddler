@@ -806,8 +806,26 @@ namespace VisualSync
             return sw.ToString();
         }
 
+        public XmlDocument GetXmlDoc()
+        {
+            return xmlDoc;
+        }
+
         public void LoadBytes(byte[] byteWBXML)
         {
+            LoadBytes(byteWBXML, false);
+        }
+
+        /// <summary>
+        /// Parse the bytes
+        /// </summary>
+        /// <param name="byteWBXML">Input WBXML byte array</param>
+        /// <param name="smartView">Whether to modify the raw data for easier display</param>
+        public void LoadBytes(byte[] byteWBXML, bool smartView)
+        {
+            // Reset the code page as we call this multiple times
+            currentCodePage = 0;
+
             xmlDoc = new XmlDocument();
 
             ASWBXMLByteQueue bytes = new ASWBXMLByteQueue(byteWBXML);
@@ -867,12 +885,39 @@ namespace VisualSync
                         break;
                     case GlobalTokens.OPAQUE:
                         int CDATALength = bytes.DequeueMultibyteInt();
-                        XmlCDataSection newOpaqueNode = xmlDoc.CreateCDataSection(bytes.DequeueString(CDATALength));
+
+                        string CDATAString = bytes.DequeueString(CDATALength);
+
+                        if (smartView)
+                        {
+                            if ((currentNode.Name.ToLower() == "mime" && currentNode.ParentNode.Name.ToLower() == "sendmail") ||
+                                (currentNode.Name.ToLower() == "data" && currentNode.ParentNode.Name.ToLower() == "body"))
+                            {
+                                CDATAString = EasInspector.InspectorUtilities.DecodeEmailData(CDATAString);
+                            }
+                            else if (currentNode.Name.ToLower() == "conversationid" || currentNode.Name.ToLower() == "conversationindex")
+                            {
+                                CDATAString = EasInspector.InspectorUtilities.GetByteString(Encoding.UTF8.GetBytes(CDATAString));
+                            }
+                        }
+
+                        XmlCDataSection newOpaqueNode = xmlDoc.CreateCDataSection(CDATAString);
                         currentNode.AppendChild(newOpaqueNode);
                         break;
                     case GlobalTokens.STR_I:
-                        XmlNode newTextNode = xmlDoc.CreateTextNode(bytes.DequeueString());
+                        string dataString = bytes.DequeueString();
+
+                        if (smartView)
+                        {
+                            if (currentNode.Name.ToLower() == "data" && currentNode.ParentNode.Name.ToLower() == "body")
+                            {
+                                dataString = EasInspector.InspectorUtilities.DecodeEmailData(dataString);
+                            }
+                        }
+
+                        XmlNode newTextNode = xmlDoc.CreateTextNode(dataString);
                         currentNode.AppendChild(newTextNode);
+
                         break;
                     // According to MS-ASWBXML, these features aren't used
                     case GlobalTokens.ENTITY:
@@ -913,8 +958,17 @@ namespace VisualSync
                             strTag = string.Format("UNKNOWN_TAG_{0,2:X}", token);
                         }
 
-                        XmlNode newNode = xmlDoc.CreateElement(codePages[currentCodePage].Xmlns, strTag, codePages[currentCodePage].Namespace);
-                        newNode.Prefix = codePages[currentCodePage].Xmlns;
+                        XmlNode newNode;
+                        if (smartView)
+                        {
+                            newNode = xmlDoc.CreateElement(strTag);
+                        }
+                        else
+                        {
+                            newNode = xmlDoc.CreateElement(codePages[currentCodePage].Xmlns, strTag, codePages[currentCodePage].Namespace);
+                            newNode.Prefix = codePages[currentCodePage].Xmlns;
+                        }
+
                         currentNode.AppendChild(newNode);
 
                         if (hasContent)
@@ -924,6 +978,8 @@ namespace VisualSync
                         break;
                 }
             }
+
+            XmlDocument tempDoc = xmlDoc;
         }
 
         public byte[] GetBytes()
