@@ -53,6 +53,9 @@ namespace EASView
             this.sb = new StringBuilder();
             this.txtEasResults.Text = string.Empty;
             this.browser.Document.OpenNew(true);
+
+            this.SetLabel1(string.Empty);
+            this.SetLabel2(string.Empty);
         }
 
         /// <summary>
@@ -102,9 +105,14 @@ namespace EASView
             txtEasResults.Text = text;
         }
 
-        internal void SetStatus(string txt)
+        internal void SetLabel1(string txt)
         {
             this.toolStrip_Label1.Text = txt;
+        }
+
+        internal void SetLabel2(string txt)
+        {
+            this.toolStrip_Label2.Text = txt;
         }
 
         private void ViewRaw()

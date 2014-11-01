@@ -59,6 +59,7 @@ namespace VisualSync
             codePages[0].Xmlns = "airsync";
 
             codePages[0].AddToken(0x05, "Sync");
+            codePages[0].AddDocRef(0x05, @"http://msdn.microsoft.com/en-us/library/ee218515.aspx"); // [MS-ASCMD] 2.2.2.20 Sync
             codePages[0].AddToken(0x06, "Responses");
             codePages[0].AddToken(0x07, "Add");
             codePages[0].AddToken(0x08, "Change");
@@ -890,6 +891,7 @@ namespace VisualSync
 
                         if (smartView)
                         {
+                            // In Smart View, try to decode some basic email data
                             if ((currentNode.Name.ToLower() == "mime" && currentNode.ParentNode.Name.ToLower() == "sendmail") ||
                                 (currentNode.Name.ToLower() == "data" && currentNode.ParentNode.Name.ToLower() == "body"))
                             {
@@ -897,6 +899,9 @@ namespace VisualSync
                             }
                             else if (currentNode.Name.ToLower() == "conversationid" || currentNode.Name.ToLower() == "conversationindex")
                             {
+                                // The ConversationId and ConversationIndex are raw bytes in the XML.  This often results in
+                                // null characters which cannot be rendered.  Similar to how Exchange handles this, show
+                                // the ConversationId and ConversationIndex as hex
                                 CDATAString = EasInspector.InspectorUtilities.GetByteString(Encoding.UTF8.GetBytes(CDATAString));
                             }
                         }
@@ -909,6 +914,7 @@ namespace VisualSync
 
                         if (smartView)
                         {
+                            // In Smart View, try to decode some basic email data
                             if (currentNode.Name.ToLower() == "data" && currentNode.ParentNode.Name.ToLower() == "body")
                             {
                                 dataString = EasInspector.InspectorUtilities.DecodeEmailData(dataString);
@@ -958,10 +964,16 @@ namespace VisualSync
                             strTag = string.Format("UNKNOWN_TAG_{0,2:X}", token);
                         }
 
-                        XmlNode newNode;
+                        XmlElement newNode;
                         if (smartView)
                         {
+                            // For Smart View, don't display the namespace prefix for easier reading
                             newNode = xmlDoc.CreateElement(strTag);
+
+                            if (null != codePages[currentCodePage].GetDocRef(token))
+                            {
+                                newNode.SetAttribute("DocRef", codePages[currentCodePage].GetDocRef(token));
+                            }
                         }
                         else
                         {

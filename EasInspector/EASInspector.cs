@@ -228,7 +228,7 @@ namespace EASView
             base.AssignSession(oS);
 
             EasInspector.InspectorUtilities.SessionId = session.id;
-            this.oEasViewControl.SetStatus("Session: " + session.id);
+            this.oEasViewControl.SetLabel1("Session: " + session.id);
         }
 
         #endregion
@@ -255,7 +255,6 @@ namespace EASView
         private void UpdateView()
         {
             this.Clear();
-            this.oEasViewControl.AppendLine("Selected session: " + this.session.id);
 
             this.DisplayKnownHeaders();
 
@@ -337,11 +336,95 @@ namespace EASView
             InspectorUtilities.SetFiddlerStatus(this.session.fullUrl);
         }
 
+        public void DisplayInfo(string title, string data)
+        {
+            DisplayInfo(title, data, title);
+        }
+
+        public void DisplayInfo(string headerDisplayName, string data, string tooltip)
+        {
+            this.oEasViewControl.AppendLine(string.Format(@"<span title=""{2}"" class=""headerItem"">{0}: {1}</span>", headerDisplayName, data, tooltip));
+        }
+
         /// <summary>
-        /// Check for known headers and display them
+        /// Check for known headers and info and display them
         /// </summary>
         public void DisplayKnownHeaders()
         {
+            // Example query strings:
+            //
+            // Standard: outlook.office365.com/Microsoft-Server-ActiveSync?User=test@contoso.com&DeviceId=UR10CK7H897UB3DEM2A4008HFG&DeviceType=iPad&Cmd=Sync
+            //
+            // Base64:   outlook.office365.com/Microsoft-Server-ActiveSync?jQAJBBD5TurgdN9+MRNbecB9eS8mBPzvZyEDV1A4
+            // [MS-ASHTTP] 2.2.1.1.1.1 Base64-Encoded Query Value
+            // http://msdn.microsoft.com/en-us/library/ee160227.aspx
+            int firstChar = session.PathAndQuery.IndexOf('?');
+            int lastChar = session.PathAndQuery.IndexOf('&');
+
+            if (firstChar > -1)
+            {
+                if (lastChar == -1)
+                {
+                    // We're likely Base64 here
+                    try
+                    {
+                        string base64string = session.PathAndQuery.Substring(firstChar + 1);
+                        byte[] base64bytes = Convert.FromBase64String(base64string);
+
+                        MemoryStream ms = new MemoryStream(base64bytes);
+                        BinaryReader br = new BinaryReader(ms);
+
+                        float protocolVersion = br.ReadByte() / 10;
+                        DisplayInfo("ActiveSync Version", string.Format("{0:N1}", protocolVersion), "MS-ASProtocolVersion");
+
+                        int commandCode = br.ReadByte();
+                        int locale = br.ReadUInt16();
+
+                        int deviceIdLength = br.ReadByte();
+                        byte[] deviceIdBytes = br.ReadBytes(deviceIdLength);
+
+                        if (deviceIdLength == 16)
+                        {
+                            Guid deviceId = new Guid(deviceIdBytes);
+                            DisplayInfo("DeviceId", deviceId.ToString());
+                        }
+
+                        int policyKeyLength = br.ReadByte();
+                        if (policyKeyLength == 4)
+                        {
+                            UInt32 policyKey = br.ReadUInt32();
+                            DisplayInfo("Policy Key", policyKey.ToString(), "X-MS-PolicyKey");
+                        }
+
+                        string deviceType = br.ReadString();
+                        this.oEasViewControl.SetLabel2(deviceType);
+
+                        // At this point, the command parameters still need to be parsed
+                        // More example Base64 query strings needed
+                    }
+                    catch
+                    {
+                        // Do nothing, likely not Base64, but certainly not fatal
+                        // As more examples of Base64 query strings come in, we'll have a better feel for this
+                    }
+                }
+            }
+
+            this.DisplayHeader("MS-ASProtocolVersion", "ActiveSync Version");
+
+            // outlook.office365.com/Microsoft-Server-ActiveSync?User=test@contoso.com&DeviceId=UR10CK7H897UB3DFM2A4008HFG&DeviceType=iPad&Cmd=Sync
+            int deviceIdStart = session.PathAndQuery.IndexOf("DeviceId=");
+
+            if (deviceIdStart > -1)
+            {
+                int deviceIdEnd = session.PathAndQuery.IndexOf("&", deviceIdStart);
+                if (deviceIdEnd > -1)
+                {
+                    string deviceId = session.PathAndQuery.Substring(deviceIdStart + 9, deviceIdEnd - (deviceIdStart + 9));
+                    DisplayInfo("DeviceId", deviceId);
+                }
+            }
+
             this.DisplayHeader("X-MS-PolicyKey", "Policy Key");
             this.DisplayHeader("User-Agent", "Client Version (User-Agent)");
             this.DisplayHeader("X-ClientInfo", "Client Info");
@@ -374,7 +457,19 @@ namespace EASView
         {
             if (this.BaseHeaders.Exists(headerToDisplay))
             {
-                this.oEasViewControl.AppendLine(string.Format(@"<span title=""{2}"" class=""headerItem"">{0}: {1}</span>", headerDisplayName, this.BaseHeaders[headerToDisplay], toolTip));
+                string headerData = this.BaseHeaders[headerToDisplay];
+
+                if (headerToDisplay == "User-Agent")
+                {
+                    // Special case
+                    this.oEasViewControl.SetLabel2(InspectorUtilities.GetExtendedUserAgentInfo(headerData));
+                }
+                else
+                {
+                    // To reduce clutter in the display, only show the header if we don't have a special case
+                    // e.g. User-Agent has a label in the status bar
+                    this.oEasViewControl.AppendLine(string.Format(@"<span title=""{2}"" class=""headerItem"">{0}: {1}</span>", headerDisplayName, headerData, toolTip));
+                }
             }
         }
 

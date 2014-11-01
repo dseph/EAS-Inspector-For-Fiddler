@@ -11,6 +11,7 @@ namespace VisualSync
         private string strNamespace = "";
         private string strXmlns = "";
         private Dictionary<byte, string> tokenLookup = new Dictionary<byte, string>();
+        private Dictionary<byte, string> docRefLookup = new Dictionary<byte, string>();
         private Dictionary<string, byte> tagLookup = new Dictionary<string, byte>();
 
         public string Namespace
@@ -41,6 +42,21 @@ namespace VisualSync
         {
             tokenLookup.Add(token, tag);
             tagLookup.Add(tag, token);
+        }
+
+        public void AddDocRef(byte token, string url)
+        {
+            docRefLookup.Add(token, url);
+        }
+
+        public string GetDocRef(byte token)
+        {
+            if (docRefLookup.ContainsKey(token))
+            {
+                return docRefLookup[token];
+            }
+
+            return null;
         }
 
         public byte GetToken(string tag)
