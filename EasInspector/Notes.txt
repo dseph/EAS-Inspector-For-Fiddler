@@ -80,3 +80,10 @@ content type starting with application/vnd.ms-sync
 + Added "Smart" view, parsing some basic quoted-printable content and displaying the XML in an invalid, but easier to read format.
 + Added a toggle button to switch between Smart View and the original Raw View
 + Added more diagnostic information
+
+11/1/2014
++ Added a way to reference the MSDN for an XML node. May need to refactor this completely as we flesh out the help system (future)
++ Parsing added for User-Agent strings
++ Parsing added for Base64 query strings:
+	[MS-ASHTTP] 2.2.1.1.1.1 Base64-Encoded Query Value
+	http://msdn.microsoft.com/en-us/library/ee160227.aspx

@@ -58,7 +58,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fiddler">
-      <HintPath>..\..\..\Fiddler.exe</HintPath>
+      <HintPath>..\..\..\Fiddler\Fiddler.exe</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -119,9 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Embedded\BrowserTemplate.html" />
-    <EmbeddedResource Include="Embedded\XmlTransform.xslt">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Embedded\XmlTransform.xslt" />
     <Content Include="Notes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
