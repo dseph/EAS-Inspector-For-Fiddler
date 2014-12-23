@@ -58,8 +58,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fiddler">
-      <HintPath>..\..\..\Fiddler\Fiddler.exe</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Fiddler2\Fiddler.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -124,10 +123,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>start "CopyDLLs" /B /wait xcopy "$(SolutionDir)$(OutDir)*.*" "D:\Apps\Fiddler2\Inspectors" /Q /Y</PostBuildEvent>
+    <PostBuildEvent>REM start "CopyDLLs" /B /wait xcopy "$(SolutionDir)$(OutDir)*.*" "D:\Apps\Fiddler2\Inspectors" /Q /Y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>taskkill /im fiddler.exe /t /f 2&gt;&amp;1 | exit /B 0</PreBuildEvent>
+    <PreBuildEvent>REM taskkill /im fiddler.exe /t /f 2&gt;&amp;1 | exit /B 0</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
