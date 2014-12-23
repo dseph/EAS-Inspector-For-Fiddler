@@ -17,7 +17,7 @@ To compile:
 When this is run you should see an "EAS XML" tab listed in Fiddler.  When ActiveSync content is 
 being viewed you should see the decoded content in the inspector.
 
-
+ 
 Most of the code comes from the Exchange Server Interoperability Guidance samples for Activesync, in particular:
 
 	Implementing an Exchange ActiveSync client: the transport mechanism
@@ -87,3 +87,5 @@ content type starting with application/vnd.ms-sync
 + Parsing added for Base64 query strings:
 	[MS-ASHTTP] 2.2.1.1.1.1 Base64-Encoded Query Value
 	http://msdn.microsoft.com/en-us/library/ee160227.aspx
+
+1.3 Released  12/23/2014

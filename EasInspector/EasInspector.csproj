@@ -58,7 +58,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fiddler">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Fiddler2\Fiddler.exe</HintPath>
+      <HintPath>C:\Program Files (x86)\Fiddler2\Fiddler.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -123,7 +124,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>REM start "CopyDLLs" /B /wait xcopy "$(SolutionDir)$(OutDir)*.*" "D:\Apps\Fiddler2\Inspectors" /Q /Y</PostBuildEvent>
+    <PostBuildEvent>start "CopyDLLs" /B /wait xcopy "$(SolutionDir)$(OutDir)*.*" "C:\Program Files (x86)\Fiddler2\Inspectors" /Q /Y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>REM taskkill /im fiddler.exe /t /f 2&gt;&amp;1 | exit /B 0</PreBuildEvent>
