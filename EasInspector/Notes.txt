@@ -89,3 +89,10 @@ content type starting with application/vnd.ms-sync
 	http://msdn.microsoft.com/en-us/library/ee160227.aspx
 
 1.3 Released  12/23/2014
+
+7/8/2015
+	I'm adding prelminary schema EAS 16.0 fields.  Note that these are not for the final release of EAS 16. I'll update it further when EAS 16 reaches RTM.
+	See the following for the preliminary EAS 16.0 specs:  
+		https://msdn.microsoft.com/en-us/library/ee941641.aspx#exchange_server
+			MS-ASWBXML covers the EAS Schema
+	ASWBXML.cs - added new EAS schema fields

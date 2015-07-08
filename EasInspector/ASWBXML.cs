@@ -266,6 +266,8 @@ namespace VisualSync
             codePages[4].AddToken(0x39, "FirstDayOfWeek");
             codePages[4].AddToken(0x3A, "OnlineMeetingConfLink");
             codePages[4].AddToken(0x3B, "OnlineMeetingExternalLink");
+
+            codePages[4].AddToken(0x3C, "ClientUid");
             #endregion
 
             // Code Page 5: Move
@@ -341,6 +343,8 @@ namespace VisualSync
             codePages[8].AddToken(0x0B, "Status");
             codePages[8].AddToken(0x0C, "UserResponse");
             codePages[8].AddToken(0x0E, "InstanceId");
+
+            codePages[8].AddToken(0x12, "SendResponse");
             #endregion
 
             // Code Page 9: Tasks
@@ -581,7 +585,7 @@ namespace VisualSync
             codePages[16].AddToken(0x12, "Data");
             #endregion
 
-            // Code Page 17: AirSyncBase
+            // Code Page 17: AirSyncBase    (Page x11)
             #region AirSyncBase Code Page
             codePages[17] = new ASWBXMLCodePage();
             codePages[17].Namespace = "AirSyncBase:";
@@ -609,6 +613,26 @@ namespace VisualSync
             codePages[17].AddToken(0x19, "BodyPartPreference");
             codePages[17].AddToken(0x1A, "BodyPart");
             codePages[17].AddToken(0x1B, "Status");
+
+
+            codePages[17].AddToken(0x1C, "Add");
+            codePages[17].AddToken(0x1D, "Delete");
+            codePages[17].AddToken(0x1E, "ClientId");
+            codePages[17].AddToken(0x1F, "Content");
+            codePages[17].AddToken(0x20, "Location");
+            codePages[17].AddToken(0x21, "Annotation");
+            codePages[17].AddToken(0x22, "Street");
+            codePages[17].AddToken(0x23, "City");
+            codePages[17].AddToken(0x24, "State");
+            codePages[17].AddToken(0x25, "Country");
+            codePages[17].AddToken(0x26, "PostalCode");
+            codePages[17].AddToken(0x27, "Latitude");
+            codePages[17].AddToken(0x28, "Longitude");
+            codePages[17].AddToken(0x29, "Accuracy");
+            codePages[17].AddToken(0x2A, "Altitude");
+            codePages[17].AddToken(0x2B, "AltitudeAccuracy");
+            codePages[17].AddToken(0x2C, "LocationUri");
+            codePages[17].AddToken(0x2D, "InstanceId");
             #endregion
 
             // Code Page 18: Settings
@@ -702,7 +726,7 @@ namespace VisualSync
             codePages[20].AddToken(0x19, "MoveAlways");
             #endregion
 
-            // Code Page 21: ComposeMail
+            // Code Page 21: ComposeMail  (Page 0x15)
             #region ComposeMail Code Page
             codePages[21] = new ASWBXMLCodePage();
             codePages[21].Namespace = "ComposeMail:";
@@ -722,9 +746,14 @@ namespace VisualSync
             codePages[21].AddToken(0x11, "ClientId");
             codePages[21].AddToken(0x12, "Status");
             codePages[21].AddToken(0x13, "AccountId");
+
+            codePages[21].AddToken(0x15, "Forwardees");
+            codePages[21].AddToken(0x16, "Forwardee");
+            codePages[21].AddToken(0x17, "ForwardeeName");
+            codePages[21].AddToken(0x18, "ForwardeeEmail");
             #endregion
 
-            // Code Page 22: Email2
+            // Code Page 22: Email2  (Page 0x16)
             #region Email2 Code Page
             codePages[22] = new ASWBXMLCodePage();
             codePages[22].Namespace = "Email2:";
@@ -745,6 +774,10 @@ namespace VisualSync
             codePages[22].AddToken(0x11, "AccountId");
             codePages[22].AddToken(0x12, "FirstDayOfWeek");
             codePages[22].AddToken(0x13, "MeetingMessageType");
+
+            codePages[22].AddToken(0x15, "IsDraft");
+            codePages[22].AddToken(0x16, "Bcc");
+            codePages[22].AddToken(0x17, "Send");
             #endregion
 
             // Code Page 23: Notes
