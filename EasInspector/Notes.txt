@@ -95,4 +95,9 @@ content type starting with application/vnd.ms-sync
 	See the following for the preliminary EAS 16.0 specs:  
 		https://msdn.microsoft.com/en-us/library/ee941641.aspx#exchange_server
 			MS-ASWBXML covers the EAS Schema
-	ASWBXML.cs - added new EAS schema fields
+	ASWBXML.cs - added new EAS schema fields (Premliminary EAS 16)
+
+7/21/2015
+	Release EASInspector 1.4
+	Note that the addition for the EAS 16 fields are based-upon preliminary information and are for eductional purposes only.
+
