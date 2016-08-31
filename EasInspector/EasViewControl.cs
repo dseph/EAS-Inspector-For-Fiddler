@@ -146,5 +146,10 @@ namespace EASView
                 ViewRaw();
             }
         }
+
+        private void txtEasResults_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
