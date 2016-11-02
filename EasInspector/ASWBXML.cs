@@ -1753,7 +1753,7 @@ namespace VisualSync
                         if (smartView)
                         {
                             // In Smart View, try to decode some basic email data
-                            if ((currentNode.Name.ToLower() == "mime" && currentNode.ParentNode.Name.ToLower() == "sendmail") ||
+                            if (currentNode.Name.ToLower() == "mime" || 
                                 (currentNode.Name.ToLower() == "data" && currentNode.ParentNode.Name.ToLower() == "body"))
                             {
                                 CDATAString = EasInspector.InspectorUtilities.DecodeEmailData(CDATAString);
