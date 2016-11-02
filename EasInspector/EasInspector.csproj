@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EasInspector</RootNamespace>
     <AssemblyName>EASInspectorFiddler</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -124,18 +124,15 @@
     <Content Include="Notes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>start "CopyDLLs" /B /wait xcopy "$(SolutionDir)$(OutDir)EASInspectorFiddler.dll" "C:\Program Files (x86)\Fiddler2\Inspectors" /Q /Y
-start "CopyDLLs" /B /wait xcopy "$(SolutionDir)$(OutDir)EASInspectorFiddler.pdb" "C:\Program Files (x86)\Fiddler2\Inspectors" /Q /Y</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>REM taskkill /im fiddler.exe /t /f 2&gt;&amp;1 | exit /B 0</PreBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
+  </Target>
+  <Target Name="BeforePublish">
+    <Error Condition="'$(ConfigurationName)'!='Release'" Text="Symbols not indexed for non-Release version." />
+    <Exec Command="C:\Debuggers\symstore.exe add /s symbolPath /compress /r /f &quot;$(TargetDir)*.pdb&quot; /t ProjectName" />
   </Target>
   -->
 </Project>

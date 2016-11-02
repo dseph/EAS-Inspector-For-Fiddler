@@ -227,21 +227,28 @@
                 #region Apple Hardware versions
                 AppleHW = new Dictionary<string, string>();
 
+                AppleHW.Add("iPod2C1", "iPod Touch 2");
+                AppleHW.Add("iPod3C1", "iPod Touch 3");
+                AppleHW.Add("iPod4C1", "iPod Touch 4");
+                AppleHW.Add("iPod5C1", "iPod Touch 5");
                 AppleHW.Add("iPad1C1", "iPad");
-                AppleHW.Add("iPad2C1", "iPad 2 WiFi");
-                AppleHW.Add("iPad2C2", "iPad 2 WiFi + 3G");
-                AppleHW.Add("iPad2C3", "iPad 2 WiFi + 3G CDMA");
-                AppleHW.Add("iPad2C4", "iPad Mini - WiFi");
-                AppleHW.Add("iPad2C5", "iPad Mini - WiFi + LTE");
-                AppleHW.Add("iPad3C1", "The New iPad (iPad 3)- WiFi");
-                AppleHW.Add("iPad3C2", "The New iPad (iPad 3) - WiFi + LTE");
-                AppleHW.Add("iPad3C3", "iPad with Retina Display (iPad 4) - WiFi");
-                AppleHW.Add("iPad3C4", "iPad with Retina Display (iPad 4) - WiFi + LTE");
-                AppleHW.Add("iPad4C1", "iPad Air - WiFi");
-                AppleHW.Add("iPad4C2", "iPad Air - WiFi + LTE");
-                AppleHW.Add("iPad4C4", "iPad Mini with Retina Display - WiFi");
-                AppleHW.Add("iPad4C5", "iPad Mini with Retina Display - WiFi + LTE");
-                AppleHW.Add("iPad5C4", "iPad Air 2");
+                AppleHW.Add("iPad2C1", "iPad 2");
+                AppleHW.Add("iPad2C2", "iPad 2 - 3G");
+                AppleHW.Add("iPad2C3", "iPad 2 - 3G CDMA");
+                AppleHW.Add("iPad2C4", "iPad Mini");
+                AppleHW.Add("iPad2C5", "iPad Mini LTE");
+                AppleHW.Add("iPad3C1", "The New iPad (iPad 3)");
+                AppleHW.Add("iPad3C2", "The New iPad (iPad 3) LTE");
+                AppleHW.Add("iPad3C3", "iPad with Retina Display (iPad 4)");
+                AppleHW.Add("iPad3C4", "iPad with Retina Display (iPad 4) LTE");
+                AppleHW.Add("iPad4C1", "iPad Air");
+                AppleHW.Add("iPad4C2", "iPad Air - LTE");
+                AppleHW.Add("iPad4C4", "iPad Mini with Retina Display");
+                AppleHW.Add("iPad4C5", "iPad Mini with Retina Display LTE");
+                AppleHW.Add("iPad5C1", "iPad Mini 4");
+                AppleHW.Add("iPad5C2", "iPad Mini 4 LTE");
+                AppleHW.Add("iPad5C3", "iPad Air 2");
+                AppleHW.Add("iPad5C4", "iPad Air 2 LTE");
                 AppleHW.Add("iPhone1C2", "iPhone 3G");
                 AppleHW.Add("iPhone2C1", "iPhone 3GS");
                 AppleHW.Add("iPhone3C1", "iPhone 4 GSM");
@@ -256,10 +263,11 @@
                 AppleHW.Add("iPhone6C2", "iPhone 5S Europe/Asia");
                 AppleHW.Add("iPhone7C1", "iPhone 6+");
                 AppleHW.Add("iPhone7C2", "iPhone 6");
-                AppleHW.Add("iPod2C1", "iPod Touch 2");
-                AppleHW.Add("iPod3C1", "iPod Touch 3");
-                AppleHW.Add("iPod4C1", "iPod Touch 4");
-                AppleHW.Add("iPod5C1", "iPod Touch 5");
+                AppleHW.Add("iPhone8C1", "iPhone 6S");
+                AppleHW.Add("iPhone8C2", "iPhone 6S Plus");
+                AppleHW.Add("iPhone8C4", "iPhone SE");
+                AppleHW.Add("iPhone9C3", "iPhone 7");
+                AppleHW.Add("iPhone9C4", "iPhone 7 Plus");
                 #endregion
             }
 
@@ -342,6 +350,41 @@
                 AppleSW.Add("1201.405", "8.0.2");
                 AppleSW.Add("1202.410", "8.1");
                 AppleSW.Add("1202.411", "8.1");
+                AppleSW.Add("1202.435", "8.1.1");
+                AppleSW.Add("1202.440", "8.1.2");
+                AppleSW.Add("1202.466", "8.1.3");
+                AppleSW.Add("1204.508", "8.2");
+                AppleSW.Add("1205.69", "8.3");
+                AppleSW.Add("1205.70", "8.3");
+                AppleSW.Add("1208.143", "8.4");
+                AppleSW.Add("1208.321", "8.4.1");
+                AppleSW.Add("1301.340", "9.0");
+                AppleSW.Add("1301.342", "9.0");
+                AppleSW.Add("1301.343", "9.0");
+                AppleSW.Add("1301.344", "9.0");
+                AppleSW.Add("1301.404", "9.0.1");
+                AppleSW.Add("1301.452", "9.0.2");
+                AppleSW.Add("1302.143", "9.1");
+                AppleSW.Add("1303.75", "9.2");
+                AppleSW.Add("1304.15", "9.2.1");
+                AppleSW.Add("1304.20", "9.2.1");
+                AppleSW.Add("1305.233", "9.3");
+                AppleSW.Add("1305.234", "9.3");
+                AppleSW.Add("1305.236", "9.3");
+                AppleSW.Add("1305.237", "9.3");
+                AppleSW.Add("1305.238", "9.3.1");
+                AppleSW.Add("1306.69", "9.3.2");
+                AppleSW.Add("1306.72", "9.3.2");
+                AppleSW.Add("1307.34", "9.3.3");
+                AppleSW.Add("1307.35", "9.3.4");
+                AppleSW.Add("1307.36", "9.3.5");
+                AppleSW.Add("1401.346", "10.0");
+                AppleSW.Add("1401.403", "10.0.1");
+                AppleSW.Add("1401.456", "10.0.2");
+                AppleSW.Add("1401.551", "10.0.3");
+                AppleSW.Add("1402.72", "10.1");
+                AppleSW.Add("1402.7200003", "10.1");
+                AppleSW.Add("1402.100", "10.1.1");
                 #endregion
             }
 
