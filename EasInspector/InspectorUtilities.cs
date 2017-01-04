@@ -385,6 +385,7 @@
                 AppleSW.Add("1402.72", "10.1");
                 AppleSW.Add("1402.7200003", "10.1");
                 AppleSW.Add("1402.100", "10.1.1");
+                AppleSW.Add("1403.92", "10.2");
                 #endregion
             }
 
