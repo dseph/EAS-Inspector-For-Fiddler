@@ -72,6 +72,9 @@
         /// <returns>Decoded string</returns>
         public static string DecodeQP(string qpString)
         {
+            // For copying items out, go ahead and change the content encoding
+            qpString = qpString.Replace("Content-Transfer-Encoding: quoted-printable", "Content-Transfer-Encoding: 7bit");
+
             // Soft line break / 78-character line-wrap
             qpString = qpString.Replace("=<br/>", "");
             qpString = qpString.Replace("=0D=0A=20", "");
@@ -386,6 +389,7 @@
                 AppleSW.Add("1402.7200003", "10.1");
                 AppleSW.Add("1402.100", "10.1.1");
                 AppleSW.Add("1403.92", "10.2");
+                AppleSW.Add("1404.27", "10.2.1");
                 #endregion
             }
 

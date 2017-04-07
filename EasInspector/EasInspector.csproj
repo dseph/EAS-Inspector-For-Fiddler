@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EasInspector</RootNamespace>
     <AssemblyName>EASInspectorFiddler</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -60,7 +60,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fiddler">
-      <HintPath>deps\Fiddler.exe</HintPath>
+      <HintPath>..\..\..\..\Apps\Fiddler2\Fiddler.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

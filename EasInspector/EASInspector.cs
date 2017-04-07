@@ -78,6 +78,11 @@ namespace EASView
         private byte[] rawBody { get; set; }
 
         /// <summary>
+        /// The command for this request, populated in ProcessQueryString()
+        /// </summary>
+        private string command;
+
+        /// <summary>
         /// Gets the direction of the traffic
         /// </summary>
         public TrafficDirection Direction
@@ -258,6 +263,11 @@ namespace EASView
 
             this.DisplayKnownHeaders();
 
+            if (this.IsActiveSync)
+            {
+                this.ProcessQueryString();
+            }
+
             // Check for HTTP-level issues
             // e.g. 302, 401, empty body, etc
             if (this.Check_PrologIsFatal())
@@ -265,6 +275,9 @@ namespace EASView
                 this.oEasViewControl.UpdateBrowser();
                 return;
             }
+
+            this.oEasViewControl.AppendLine();
+            this.DisplayTips();
 
             // ---------------------------------------------------------------------------------------------------
             // These are split because the first time we decode the GZIP etc the "value" given to us
@@ -351,79 +364,9 @@ namespace EASView
         /// </summary>
         public void DisplayKnownHeaders()
         {
-            // Example query strings:
-            //
-            // Standard: outlook.office365.com/Microsoft-Server-ActiveSync?User=test@contoso.com&DeviceId=UR10CK7H897UB3DEM2A4008HFG&DeviceType=iPad&Cmd=Sync
-            //
-            // Base64:   outlook.office365.com/Microsoft-Server-ActiveSync?jQAJBBD5TurgdN9+MRNbecB9eS8mBPzvZyEDV1A4
-            // [MS-ASHTTP] 2.2.1.1.1.1 Base64-Encoded Query Value
-            // http://msdn.microsoft.com/en-us/library/ee160227.aspx
-            int firstChar = session.PathAndQuery.IndexOf('?');
-            int lastChar = session.PathAndQuery.IndexOf('&');
-
-            if (firstChar > -1)
-            {
-                if (lastChar == -1)
-                {
-                    // We're likely Base64 here
-                    try
-                    {
-                        string base64string = session.PathAndQuery.Substring(firstChar + 1);
-                        byte[] base64bytes = Convert.FromBase64String(base64string);
-
-                        MemoryStream ms = new MemoryStream(base64bytes);
-                        BinaryReader br = new BinaryReader(ms);
-
-                        float protocolVersion = br.ReadByte() / 10;
-                        DisplayInfo("ActiveSync Version", string.Format("{0:N1}", protocolVersion), "MS-ASProtocolVersion");
-
-                        int commandCode = br.ReadByte();
-                        int locale = br.ReadUInt16();
-
-                        int deviceIdLength = br.ReadByte();
-                        byte[] deviceIdBytes = br.ReadBytes(deviceIdLength);
-
-                        if (deviceIdLength == 16)
-                        {
-                            Guid deviceId = new Guid(deviceIdBytes);
-                            DisplayInfo("DeviceId", deviceId.ToString());
-                        }
-
-                        int policyKeyLength = br.ReadByte();
-                        if (policyKeyLength == 4)
-                        {
-                            UInt32 policyKey = br.ReadUInt32();
-                            DisplayInfo("Policy Key", policyKey.ToString(), "X-MS-PolicyKey");
-                        }
-
-                        string deviceType = br.ReadString();
-                        this.oEasViewControl.SetLabel2(deviceType);
-
-                        // At this point, the command parameters still need to be parsed
-                        // More example Base64 query strings needed
-                    }
-                    catch
-                    {
-                        // Do nothing, likely not Base64, but certainly not fatal
-                        // As more examples of Base64 query strings come in, we'll have a better feel for this
-                    }
-                }
-            }
-
+            // We should only see one of these
             this.DisplayHeader("MS-ASProtocolVersion", "ActiveSync Version");
-
-            // outlook.office365.com/Microsoft-Server-ActiveSync?User=test@contoso.com&DeviceId=UR10CK7H897UB3DFM2A4008HFG&DeviceType=iPad&Cmd=Sync
-            int deviceIdStart = session.PathAndQuery.IndexOf("DeviceId=");
-
-            if (deviceIdStart > -1)
-            {
-                int deviceIdEnd = session.PathAndQuery.IndexOf("&", deviceIdStart);
-                if (deviceIdEnd > -1)
-                {
-                    string deviceId = session.PathAndQuery.Substring(deviceIdStart + 9, deviceIdEnd - (deviceIdStart + 9));
-                    DisplayInfo("DeviceId", deviceId);
-                }
-            }
+            this.DisplayHeader("MS-Server-ActiveSync", "ActiveSync Version");
 
             this.DisplayHeader("X-MS-PolicyKey", "Policy Key");
             this.DisplayHeader("User-Agent", "Client Version (User-Agent)");
@@ -433,8 +376,6 @@ namespace EASView
             this.DisplayHeader("X-ServerApplication", "Server Version");
             this.DisplayHeader("X-ClientApplication", "Client Version");
             this.DisplayHeader("X-ExpirationInfo", "Timeout", "Response header ExpirationInfo");
-
-            this.oEasViewControl.AppendLine();
         }
 
         /// <summary>
@@ -468,13 +409,29 @@ namespace EASView
                 {
                     // To reduce clutter in the display, only show the header if we don't have a special case
                     // e.g. User-Agent has a label in the status bar
-                    this.oEasViewControl.AppendLine(string.Format(@"<span title=""{2}"" class=""headerItem"">{0}: {1}</span>", headerDisplayName, headerData, toolTip));
+                    if (headerData.IndexOf(',') > -1)
+                    {
+                        var values = headerData.Split(',');
+                        var valueList = new StringBuilder();
+
+                        foreach (var value in values)
+                        {
+                            valueList.AppendLine($@"<div class=""level1"">{value}</div>");
+                        }
+
+                        this.oEasViewControl.AppendLine($@"<span title=""{toolTip}"" class=""headerItem"">{headerDisplayName}:</span><br/>{valueList.ToString()}");
+                    }
+                    else
+                    {
+                        // Just display the header
+                        this.oEasViewControl.AppendLine(string.Format(@"<span title=""{2}"" class=""headerItem"">{0}: {1}</span>", headerDisplayName, headerData, toolTip));
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// Check the traffic for known HTTP issues and notify the end-user
+        /// Check the traffic for known fatal (can't decode EAS traffic) issues and notify the end-user
         /// </summary>
         /// <returns>bool indicating whether any HTTP issues are fatal</returns>
         public bool Check_PrologIsFatal()
@@ -491,87 +448,185 @@ namespace EASView
                 return true;
             }
 
-            if (this.BaseHeaders.ExistsAndEquals("Content-Length", "0") || this.body.Length == 0)
+            // This should also cover the 505 Http Version Not Supported
+            if (this.session.RequestMethod == "GET")
             {
-                this.SetEmptyWarning();
-
-                this.oEasViewControl.AppendLine(@"Content-Length is 0.<br/><div class=""level1"">The HTTP payload (body) is empty. &nbsp;This may be normal for Ping, Sync, etc. &nbsp;Refer to the protocol docs (<a title=""[MS-ASCMD]: Exchange ActiveSync: Command Reference Protocol"" target=""_BLANK"" href=""http://msdn.microsoft.com/en-us/library/dd299441.aspx"">MS-ASCMD</a>) to be sure.</div>");
-
-                if (this.session.fullUrl.ToLower().Contains("cmd=ping"))
-                {
-                    // [MS-ASCMD] 2.2.2.12 Ping
-                    oEasViewControl.AppendLine(@"This may be normal if the device is just resending a Ping with a Content-Length of 0.&nbsp; A cached version would be used -- <a title=""[MS-ASCMD] 2.2.2.12 Ping"" href=""http://msdn.microsoft.com/en-us/library/ee200913.aspx"">2.2.2.12 Ping</a>");
-                    oEasViewControl.AppendLine("<br/>");
-                    oEasViewControl.AppendLine("Full URL: " + this.session.fullUrl);
-                }
-                else if (this.session.fullUrl.ToLower().Contains("cmd=sync"))
-                {
-                    oEasViewControl.Append("This may be normal if the device is just resending a Sync with a Content-Length of 0.&nbsp; A cached version would be used -- ");
-                    if (this.Direction == TrafficDirection.In)
-                    {
-                        // [MS-ASCMD] 2.2.2.20.1 Empty Sync Request
-                        oEasViewControl.AppendLine(@"<a title=""[MS-ASCMD] 2.2.2.20.1 Empty Sync Request"" href=""http://msdn.microsoft.com/en-us/library/ee203280.aspx"">2.2.2.20.1 Empty Sync Request</a>");
-                    }
-                    else
-                    {
-                        // [MS-ASCMD] 2.2.2.20.2 Empty Sync Response
-                        oEasViewControl.AppendLine(@"<a title=""[MS-ASCMD] 2.2.2.20.2 Empty Sync Response"" href=""http://msdn.microsoft.com/en-us/library/ee200474.aspx"">2.2.2.20.2 Empty Sync Response</a>");
-                    }
-                    oEasViewControl.AppendLine();
-                    oEasViewControl.AppendLine("Full URL: " + this.session.fullUrl);
-                }
-                else if (this.session.fullUrl.ToLower().Contains("cmd=sendmail") && this.Direction == TrafficDirection.Out)
-                {
-                    // [MS-ASCMD] 2.2.2.16 SendMail
-                    oEasViewControl.AppendLine(@"A Content-Length of 0 is normal for a SendMail, and indicates a success -- <a href=""http://msdn.microsoft.com/en-us/library/ee178477.aspx"" title=""[MS-ASCMD] 2.2.2.16 SendMail"">2.2.2.16 SendMail</a>");
-                }
+                this.oEasViewControl.AppendLine("Exchange ActiveSync only supports HTTP methods OPTIONS and POST");
+                return true;
             }
 
-            string diagServer = "unknown";
-            if (this.BaseHeaders.Exists("X-DiagInfo"))
+            // Requests can be fatal, but we should catch those above
+            if (this.Direction == TrafficDirection.In)
             {
-                diagServer = this.BaseHeaders["X-DiagInfo"];
+                return false;
             }
-            else if (this.BaseHeaders.Exists("X-FEServer"))
+            else
             {
-                diagServer = this.BaseHeaders["X-FEServer"];
-            }
+                string diagServer = "unknown";
+                if (this.BaseHeaders.Exists("X-DiagInfo"))
+                {
+                    diagServer = this.BaseHeaders["X-DiagInfo"];
+                }
+                else if (this.BaseHeaders.Exists("X-FEServer"))
+                {
+                    diagServer = this.BaseHeaders["X-FEServer"];
+                }
 
-            switch (this.session.responseCode)
-            {
-                case 404:
-                    if (this.BaseHeaders.ExistsAndContains("X-CasErrorCode", "MailboxGuidWithDomainNotFound"))
-                    {
-                        this.oEasViewControl.AppendLine(string.Format(@"404 Not Found -- An HTTP 404 Not Found and ""MailboxGuidWithDomainNotFound"" response was received from the remote server ({0}). Ensure the mailbox is licensed for Exchange Online.", diagServer));
+                switch (this.session.responseCode)
+                {
+                    case 404:
+                        if (this.BaseHeaders.ExistsAndContains("X-CasErrorCode", "MailboxGuidWithDomainNotFound"))
+                        {
+                            this.oEasViewControl.AppendLine(string.Format(@"<br/>404 Not Found -- An HTTP 404 Not Found and ""MailboxGuidWithDomainNotFound"" response was received from the remote server ({0}). Ensure the mailbox is licensed for Exchange Online.", diagServer));
+                            return true;
+                        }
+                        else
+                        {
+                            this.oEasViewControl.AppendLine(string.Format(@"<br/>404 Not Found -- An HTTP 404 Not Found response was received from the remote server ({0}).", diagServer));
+                            return true;
+                        }
+                    case 456:
+                        this.oEasViewControl.AppendLine(string.Format(@"<br/>456 Unauthorized -- An HTTP 456 Unauthorized response was received from the remote server ({0}). This indicates that the user may not have logged on for the first time, or the account may be locked.", diagServer));
                         return true;
-                    }
-                    else
-                    {
-                        this.oEasViewControl.AppendLine(string.Format(@"404 Not Found -- An HTTP 404 Not Found response was received from the remote server ({0}).", diagServer));
+                    case 401:
+                        this.oEasViewControl.AppendLine(@"<br/>401 Unauthorized -- check against <a target=""_BLANK"" href=""https://support.microsoft.com/en-us/help/943891/the-http-status-code-in-iis-7.0,-iis-7.5,-and-iis-8.0"">KB 943891</a> for more info. &nbsp;This may simply be part of an auth handshake (<a target=""_BLANK"" href=""http://support.microsoft.com/kb/969060"">KB 969060</a>).");
                         return true;
-                    }
-                case 456:
-                    this.oEasViewControl.AppendLine(string.Format("456 Unauthorized -- An HTTP 456 Unauthorized response was received from the remote server ({0}). This indicates that the user may not have logged on for the first time, or the account may be locked.", diagServer));
-                    return true;
-                case 401:
-                    this.oEasViewControl.AppendLine(@"401 Unauthorized -- check against <a target=""_BLANK"" href=""http://httpweb/http4xx.htm"">HTTP Web</a> for more info. &nbsp;This may simply be part of an auth handshake (<a target=""_BLANK"" href=""http://support.microsoft.com/kb/969060"">KB 969060</a>).");
-                    return true;
-                case 301:
-                case 302:
-                    if (this.BaseHeaders.Exists("Location"))
-                    {
-                        this.oEasViewControl.AppendLine(this.session.responseCode + " Redirect -- The server redirected the client to " + this.session.GetRedirectTargetURL() + ".");
-                    }
-                    else
-                    {
-                        this.oEasViewControl.AppendLine(this.session.responseCode + " Redirect -- The server redirected the client but the target location is unknown.");
-                    }
+                    case 301:
+                    case 302:
+                        if (this.BaseHeaders.Exists("Location"))
+                        {
+                            this.oEasViewControl.AppendLine(@"<br/>" + this.session.responseCode + " Redirect -- The server redirected the client to " + this.session.GetRedirectTargetURL() + ".");
+                        }
+                        else
+                        {
+                            this.oEasViewControl.AppendLine(@"<br/>" + this.session.responseCode + " Redirect -- The server redirected the client but the target location is unknown.");
+                        }
 
-                    return true;
-                case 200:
-                    return false;
-                default:
-                    return true;
+                        return true;
+                    case 500:
+                        // In this case, display the HTTP response raw, since if it's a 500 we want to see the error
+                        this.oEasViewControl.Clear();
+                        this.oEasViewControl.Append(this.session.GetResponseBodyAsString());
+                        return true;
+                    case 503:
+                        if (this.body.Length > 0)
+                        {
+                            // In this case, display the HTTP response raw, not sure if there's a 503 with a body in EAS
+                            this.oEasViewControl.Clear();
+                            this.oEasViewControl.Append(this.session.GetResponseBodyAsString());
+                        }
+                        else
+                        {
+                            // Try to find errors
+                            DisplayHeader("X-CasErrorCode", "ErrorCode");
+
+                            this.oEasViewControl.AppendLine();
+                            this.oEasViewControl.Append("503 Service Unavailable. Something went wrong while processing the request.");
+
+                            if (this.BaseHeaders.Exists("X-FailureContext"))
+                            {
+                                this.oEasViewControl.AppendLine(" More information may be available in the X-FailureContext header below.");
+                                this.oEasViewControl.AppendLine();
+                                this.oEasViewControl.AppendLine(@"<span title=""X-FailureContext"" class=""headerItem"">X-FailureContext:</span>");
+                                var errors = this.BaseHeaders["X-FailureContext"].Split(';');
+                                foreach (var value in errors)
+                                {
+                                    if (string.IsNullOrEmpty(value))
+                                    {
+                                        continue;
+                                    }
+
+                                    try
+                                    {
+                                        var decodedValue = Convert.FromBase64String(value);
+                                        foreach (char c in decodedValue)
+                                        {
+                                            if (Char.IsControl(c))
+                                            {
+                                                throw new Exception();
+                                            }
+                                        }
+                                        this.oEasViewControl.Append($@"<div class=""level1"">{Encoding.ASCII.GetString(decodedValue)}</div>");
+                                    }
+                                    catch
+                                    {
+                                        // This will catch both a Base64 failure as well as a control character failure
+                                        // Had to do this because it turns out "FrontEnd" is Base64-decodable as well as
+                                        // other possible combinations
+                                        this.oEasViewControl.Append($@"<div class=""level1"">{value}</div>");
+                                    }
+                                }
+                            }
+                        }
+                        return true;
+                    case 200:
+                        return false;
+                    default:
+                        return true;
+                }
+            }
+        }
+
+        public void DisplayTips()
+        {
+            // REQUEST known cases
+            if (this.Direction == TrafficDirection.In)
+            {
+                if (this.session.RequestMethod == "OPTIONS")
+                {
+                    this.oEasViewControl.AppendLine(@"This is an <a target=""_BLANK"" title=""[MS-ASHTTP] 2.2.3 HTTP OPTIONS Request"" href=""https://msdn.microsoft.com/en-us/library/gg651018.aspx"">HTTP OPTIONS Request</a>, and is used to discover what protocol versions are supported, and which protocol commands are supported on the server. The client uses the HTTP OPTIONS command to determine whether the server supports the same versions of the protocol that the client supports.<br/><br/>There is no HTTP body for this request, so the content-length of 0 is normal.");
+                    return;
+                }
+
+                // Request body is empty
+                if (this.BaseHeaders.ExistsAndEquals("Content-Length", "0") || this.body.Length == 0)
+                {
+                    switch (command.ToLower())
+                    {
+                        case "ping":
+                            // [MS-ASCMD] 2.2.2.12 Ping
+                            this.oEasViewControl.AppendLine($@"This is an empty <a title=""[MS-ASCMD] 2.2.2.12 Ping"" href=""http://msdn.microsoft.com/en-us/library/ee200913.aspx"">Ping</a> request. A Ping command can be sent with no body, in which case the cached version is used.");
+                            break;
+                        case "sync":
+                            // [MS-ASCMD] 2.2.2.20.1 Empty Sync Request
+                            oEasViewControl.AppendLine($@"This is an <a target=""_BLANK"" title=""[MS-ASCMD] 2.2.2.20.1 Empty Sync Request"" href=""http://msdn.microsoft.com/en-us/library/ee203280.aspx"">Empty Sync Request</a>. A Sync command can be sent with no body, in which case the cached version is used.");
+                            break;
+                        default:
+                            this.SetEmptyWarning();
+                            break;
+                    }
+                }
+            }
+            // RESPONSE known cases
+            else
+            {
+                if (this.session.RequestMethod == "OPTIONS")
+                {
+                    this.oEasViewControl.AppendLine(@"This is an <a target=""_BLANK"" title=""[MS-ASHTTP] 2.2.4 HTTP OPTIONS Response"" href=""https://msdn.microsoft.com/en-us/library/gg672039.aspx"">HTTP OPTIONS Response</a>. After receiving an HTTP OPTIONS request, a server responds with an HTTP OPTIONS response that specifies the protocol versions it supports.  There is no HTTP body for this response, so the content-length of 0 is normal.");
+                    this.oEasViewControl.AppendLine();
+                    DisplayHeader("MS-ASProtocolVersions", "Supported Versions");
+                    DisplayHeader("MS-ASProtocolCommands", "Supported Commands");
+                    return;
+                }
+
+                // Response body is empty
+                if (this.BaseHeaders.ExistsAndEquals("Content-Length", "0") || this.body.Length == 0)
+                {
+                    switch (command.ToLower())
+                    {
+                        case "sync":
+                            // [MS-ASCMD] 2.2.2.20.2 Empty Sync Response
+                            oEasViewControl.AppendLine(@"This is an <a target=""_BLANK"" title=""[MS-ASCMD] 2.2.2.20.2 Empty Sync Response"" href=""http://msdn.microsoft.com/en-us/library/ee200474.aspx"">Empty Sync Response</a>. This generally indicates no changes detected on the server.");
+                            break;
+                        case "sendmail":
+                            // [MS-ASCMD] 2.2.2.16 SendMail
+                            oEasViewControl.AppendLine(@"A Content-Length of 0 is normal for a <a target=""_BLANK"" href=""http://msdn.microsoft.com/en-us/library/ee178477.aspx"" title=""[MS-ASCMD] 2.2.2.16 SendMail"">SendMail</a>, and indicates the message was sent successfully.");
+                            break;
+                        default:
+                            this.SetEmptyWarning();
+                            break;
+                    }
+                }
             }
         }
 
@@ -600,6 +655,8 @@ namespace EASView
                 infoBar.Enabled = false;
                 infoBarText.Text = "The Content-Length is 0.";
             }
+
+            this.oEasViewControl.AppendLine(@"Content-Length is 0.<br/><div class=""level1"">The HTTP payload (body) is empty. This can be normal for Ping, Sync, and other commands. Refer to the protocol docs (<a title=""[MS-ASCMD]: Exchange ActiveSync: Command Reference Protocol"" target=""_BLANK"" href=""http://msdn.microsoft.com/en-us/library/dd299441.aspx"">MS-ASCMD</a>) to be sure.</div>");
         }
 
         /// <summary>
@@ -628,6 +685,133 @@ namespace EASView
             }
             return null;
         }
+
+        // Processes the query string, converting from Base64 if needed
+        // Also displays items as headers where needed
+        // Base64: "/Microsoft-Server-ActiveSync?jREJBBDIbLhmwWR9sOSgpRFjJNNCBAAAAAALV2luZG93c01haWw=";
+        //      [MS-ASHTTP] 2.2.1.1.1.1 Base64-Encoded Query Value
+        //      http://msdn.microsoft.com/en-us/library/ee160227.aspx
+        // Normal: "/Microsoft-Server-ActiveSync?User=user1@contoso.com&DeviceId=DEADBEEF&DeviceType=iPad&Cmd=Sync";
+        // Options: "/Microsoft-Server-ActiveSync?User=user1&DeviceId=DEADBEEF&DeviceType=WindowsMail";
+        private void ProcessQueryString()
+        {
+            var query = string.Empty;
+            var queryIndex = session.PathAndQuery.ToLower().IndexOf('?');
+
+            // Do we even have a querystring?
+            if (queryIndex > -1 && queryIndex + 1 < session.PathAndQuery.Length)
+            {
+                query = session.PathAndQuery.Substring(queryIndex + 1);
+
+                try
+                {
+                    var base64bytes = Convert.FromBase64String(query);
+
+                    var convertedQueryString = new StringBuilder();
+
+                    // /Microsoft-Server-ActiveSync/default.eas?Cmd=Provision&DeviceId=DEADBEEF&DeviceType=WindowsMail
+                    convertedQueryString.Append("/Microsoft-Server-ActiveSync/default.eas?");
+
+                    MemoryStream ms = new MemoryStream(base64bytes);
+                    BinaryReader br = new BinaryReader(ms);
+
+                    float protocolVersion = br.ReadByte() / 10f;
+                    CommandCode commandCode = (CommandCode)br.ReadByte();
+                    this.command = commandCode.ToString();
+
+                    if (this.Direction == TrafficDirection.Out)
+                    {
+                        // We just wanted the command value
+                        return;
+                    }
+
+                    DisplayInfo("ActiveSync Version", string.Format("{0:N1}", protocolVersion), "MS-ASProtocolVersion");
+                    convertedQueryString.Append($"cmd={this.command}");
+
+                    int locale = br.ReadUInt16();
+
+                    int deviceIdLength = br.ReadByte();
+                    byte[] deviceIdBytes = br.ReadBytes(deviceIdLength);
+
+                    // According to https://msdn.microsoft.com/en-us/library/ee160227.aspx this value is either
+                    // a GUID or a string, but we've noticed that the byte values is often the device ID, not
+                    // converted to a GUID
+                    if (deviceIdLength == 16)
+                    {
+                        Guid deviceId = new Guid(deviceIdBytes);
+                        DisplayInfo("DeviceId (as GUID)", deviceId.ToString());
+
+                        // Also display as bytes
+                        var byteString = new StringBuilder();
+                        foreach (byte b in deviceIdBytes)
+                        {
+                            byteString.Append(b.ToString("X2"));
+                        }
+                        convertedQueryString.Append($"&DeviceId={byteString.ToString()}");
+                        DisplayInfo("DeviceId (as Bytes)", byteString.ToString());
+                    }
+                    else
+                    {
+                        convertedQueryString.Append($"&DeviceId={Encoding.ASCII.GetString(deviceIdBytes)}");
+                        DisplayInfo("DeviceId", Encoding.ASCII.GetString(deviceIdBytes));
+                    }
+
+                    // Valid values are only 0 and 4
+                    int policyKeyLength = br.ReadByte();
+                    if (policyKeyLength == 4)
+                    {
+                        UInt32 policyKey = br.ReadUInt32();
+                        DisplayInfo("Policy Key", policyKey.ToString(), "X-MS-PolicyKey");
+                    }
+
+                    string deviceType = br.ReadString();
+                    this.oEasViewControl.SetLabel2(deviceType);
+                    convertedQueryString.Append($"&DeviceType={deviceType}");
+
+                    this.oEasViewControl.AppendLine();
+                    this.oEasViewControl.AppendLine($@"Query value is <a target=""_BLANK"" title=""[MS-ASHTTP] 2.2.1.1.1.1 Base64-Encoded Query Value"" href=""http://msdn.microsoft.com/en-us/library/ee160227.aspx"">Base64 encoded</a>.  Decoded query:<br/><div class=""level1"">{convertedQueryString.ToString()}</div>");
+
+                    // At this point, the command parameters still need to be parsed
+                    // More example Base64 query strings needed
+                }
+                catch
+                {
+                    // Not Base64
+                    var commandIndex = session.PathAndQuery.ToLower().IndexOf("cmd=");
+                    if (commandIndex > -1)
+                    {
+                        var commandEnd = session.PathAndQuery.ToLower().IndexOf('&', commandIndex);
+                        if (commandEnd > -1)
+                        {
+                            this.command = session.PathAndQuery.Substring(commandIndex + 4, commandEnd);
+                        }
+                        else
+                        {
+                            this.command = session.PathAndQuery.Substring(commandIndex + 4);
+                        }
+                    }
+
+                    if (this.Direction == TrafficDirection.Out)
+                    {
+                        // We just wanted the command value
+                        return;
+                    }
+
+                    // outlook.office365.com/Microsoft-Server-ActiveSync?User=test@contoso.com&DeviceId=UR10CK7H897UB3DFM2A4008HFG&DeviceType=iPad&Cmd=Sync
+                    int deviceIdStart = session.PathAndQuery.ToLower().IndexOf("DeviceId=");
+
+                    if (deviceIdStart > -1)
+                    {
+                        int deviceIdEnd = session.PathAndQuery.IndexOf("&", deviceIdStart);
+                        if (deviceIdEnd > -1)
+                        {
+                            string deviceId = session.PathAndQuery.Substring(deviceIdStart + 9, deviceIdEnd - (deviceIdStart + 9));
+                            DisplayInfo("DeviceId", deviceId);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -644,5 +828,31 @@ namespace EASView
         /// Represents the outgoing response
         /// </summary>
         Out
+    }
+
+    // [MS-ASHTTP] 2.2.1.1.1.1.2 Command Codes
+    // https://msdn.microsoft.com/en-us/library/ee157488.aspx
+    public enum CommandCode : byte
+    {
+        Sync = 0x00,
+        SendMail = 0x01,
+        SmartForward = 0x02,
+        SmartReply = 0x03,
+        GetAttachment = 0x04,
+        FolderSync = 0x09,
+        FolderCreate = 0x0A,
+        FolderDelete = 0x0B,
+        FolderUpdate = 0x0C,
+        MoveItems = 0x0D,
+        GetItemEstimate = 0x0E,
+        MeetingResponse = 0x0F,
+        Search = 0x10,
+        Settings = 0x11,
+        Ping = 0x12,
+        ItemOperations = 0x13,
+        Provision = 0x14,
+        ResolveRecipients = 0x15,
+        ValidateCert = 0x16,
+        Find = 0x17
     }
 }
