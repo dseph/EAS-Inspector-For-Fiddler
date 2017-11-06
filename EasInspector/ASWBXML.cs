@@ -553,6 +553,7 @@ namespace VisualSync
             codePages[14].AddToken(0x38, "ApplicationName");                        // 12.1, 14.0, 14.1, 16.0, 16.1
             codePages[14].AddToken(0x39, "ApprovedApplicationList");                // 12.1, 14.0, 14.1, 16.0, 16.1
             codePages[14].AddToken(0x3A, "Hash");                                   // 12.1, 14.0, 14.1, 16.0, 16.1
+            codePages[14].AddToken(0x3B, "AccountOnlyRemoteWipe");                  // 16.1
             #endregion
 
             // Code Page 15: Search
@@ -847,11 +848,11 @@ namespace VisualSync
             codePages[24].AddToken(0x18, "RemoveRightsManagementDistribution"); // 14.1, 16.0, 16.1
             #endregion
 
-            // Code Page 24: RightsManagement
-            #region RightsManagement Code Page
+            // Code Page 25: Find
+            #region Find Code Page
             codePages[25] = new ASWBXMLCodePage();
             codePages[25].Namespace = "Find:";
-            codePages[24].Xmlns = "find";
+            codePages[25].Xmlns = "find";
 
             codePages[25].AddToken(0x05, "Find");                       // 16.1
             codePages[25].AddToken(0x06, "SearchId");                   // 16.1
@@ -868,7 +869,7 @@ namespace VisualSync
             codePages[25].AddToken(0x13, "Properties");                 // 16.1
             codePages[25].AddToken(0x14, "Preview");                    // 16.1
             codePages[25].AddToken(0x15, "HasAttachments");             // 16.1
-            codePages[25].AddToken(0x16, "Total ");                     // 16.1
+            codePages[25].AddToken(0x16, "Total");                      // 16.1
             codePages[25].AddToken(0x17, "DisplayCc");                  // 16.1
             codePages[25].AddToken(0x18, "DisplayBcc");                 // 16.1
             #endregion
@@ -1726,13 +1727,13 @@ namespace VisualSync
                     // Check for a global token that we actually implement
                     case GlobalTokens.SWITCH_PAGE:
                         int newCodePage = (int)bytes.Dequeue();
-                        if (newCodePage >= 0 && newCodePage < 25)
+                        if (newCodePage >= 0 && newCodePage < 26)
                         {
                             currentCodePage = newCodePage;
                         }
                         else
                         {
-                            throw new InvalidDataException(string.Format("Unknown code page ID 0x{0:X} encountered in WBXML", currentByte));
+                            throw new InvalidDataException(string.Format("Unknown code page ID 0x{0:X} encountered in WBXML", newCodePage));
                         }
                         break;
                     case GlobalTokens.END:
