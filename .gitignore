@@ -1,0 +1,6 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/EasInspector/bin/Debug
+/EasInspector/.vs/EasInspector/v15/Server/sqlite3
