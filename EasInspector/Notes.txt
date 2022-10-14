@@ -49,7 +49,7 @@ After intalling the EASInspectorFiddler.dll just start Fiddler and either trace 
 
 Select a line/frame of ActiveSync (EAS) traffic.  On the right is a horisontally split window which shows requests at the top
 and responses starting in the middle.  You should see an "EAS XML" tab listed in each of these sections. Click on 
-the "EAS XML" tabs of these sections".  When ActiveSync content is being viewed you should see the decoded content in the inspector.
+the "EAS XML" tabs of these sections".  When ActiveSync content is being viewed you should see the decoded content in those tabs.
 
 --------------------
 Information:
