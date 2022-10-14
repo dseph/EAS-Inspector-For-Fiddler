@@ -1,8 +1,24 @@
-﻿EASInspector
+﻿-------------
+EASInspector:
+-------------
+
+This is an inspector add-in for Fiddler and is used in Fiddler to convert the binary content of 
+Exchange ActiveSync (EAS) payloads from binary data (EAS WBXML) into non-bianary XML.
 
 This is an inspector which can be used with Fiddler.  
 
+This application does not collect or transfer any data.  It only does a data conversion content 
+Fidler is rendering if it is of EAS content.
+
+The following EAS versions are implmented: 12.1 12.1, 14.0, 14.1, 16.0, 16.1.  However, older 
+versions may work.
+
+-----------
 To compile:
+-----------
+
+	.Net 4.6.1 needs to be installed.
+
 	Install Fiddler 2.4.4.5 or later.
 
 	Check the Post-event command line settings on the Build Events tab of the project's 
@@ -14,10 +30,21 @@ To compile:
 	Check and set the reference to Fiddler to match the path to the Fiddler.exe 
 	installed on your system.
 
+-----------
+To install:
+-----------
+
+-------
+To use:
+-------
+
 When this is run you should see an "EAS XML" tab listed in Fiddler.  When ActiveSync content is 
 being viewed you should see the decoded content in the inspector.
 
- 
+------------
+Information:
+------------
+
 Most of the code comes from the Exchange Server Interoperability Guidance samples for Activesync, in particular:
 
 	Implementing an Exchange ActiveSync client: the transport mechanism
@@ -30,20 +57,19 @@ Details on the ActiveSync protocol can be found here:
 
 Here is information on licensing:
 
-	Technology Licensing Programs
-	http://www.microsoft.com/about/legal/en/us/IntellectualProperty/IPLicensing/Programs/Default.aspx
-
-	Exchange ActiveSync Protocol
-	http://www.microsoft.com/about/legal/en/us/IntellectualProperty/IPLicensing/Programs/ExchangeActiveSyncProtocol.aspx
+	Microsoft Technology Licensing
+	https://www.microsoft.com/en-us/legal/intellectualproperty/mtl
+ 
+	Introduction to Microsoft Exchange ActiveSync, its licensing, and Premier Support
+	https://devblogs.microsoft.com/premier-developer/microsoft-exchange-activesync/
 
 	Microsoft Expands Exchange ActiveSync Licensing Program
-	http://www.microsoft.com/presspass/press/2008/dec08/12-18easlicencingpr.mspx
+	https://news.microsoft.com/2008/12/18/microsoft-expands-exchange-activesync-licensing-program/
  
 This article covers basic information on ActiveSync:
 
-	New to Exchange ActiveSync Development?
- 	http://blogs.msdn.com/b/webdav_101/archive/2011/09/28/new-to-exchange-activesync-development.aspx 
-
+	Current issues with Microsoft Exchange ActiveSync and third-party devices
+	https://support.microsoft.com/en-us/topic/current-issues-with-microsoft-exchange-activesync-and-third-party-devices-53a1ffbe-504c-a424-012a-cb4456e94ba9
  
 --------------------
 NOTE:
@@ -101,3 +127,5 @@ content type starting with application/vnd.ms-sync
 	Release EASInspector 1.4
 	Note that the addition for the EAS 16 fields are based-upon preliminary information and are for eductional purposes only.
 
+10/14/2022
+    Working on new release - 1.5
