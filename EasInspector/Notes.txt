@@ -1,6 +1,6 @@
-﻿-------------
+﻿--------------------
 EASInspector:
--------------
+--------------------
 
 This is an inspector add-in for Fiddler and is used in Fiddler to convert the binary content of 
 Exchange ActiveSync (EAS) payloads from binary data (EAS WBXML) into non-bianary XML.
@@ -10,14 +10,15 @@ This is an inspector which can be used with Fiddler.
 This application does not collect or transfer any data.  It only does a data conversion content 
 Fidler is rendering if it is of EAS content.
 
-The following EAS versions are implmented: 12.1 12.1, 14.0, 14.1, 16.0, 16.1.  However, older 
+The following EAS versions are implmented: 12.0 12.1 12.1, 14.0, 14.1, 16.0, 16.1.  However, older 
 versions may work.
 
------------
+--------------------
 To compile:
------------
+--------------------
 
-	.Net 4.6.1 needs to be installed.
+	.Net 4.6.1 needs to be installed. Adjust this to what Fiddler uses if needed. you can see the
+	version of .Net Fiddler uses on its Help -> About window.
 
 	Install Fiddler 2.4.4.5 or later.
 
@@ -30,20 +31,29 @@ To compile:
 	Check and set the reference to Fiddler to match the path to the Fiddler.exe 
 	installed on your system.
 
------------
+--------------------
 To install:
------------
+--------------------
 
--------
+Build the appliction and copy the EASInspectorFiddler.dll to the Inspector's folder of Fiddler.
+
+Example:
+
+	C:\Users\contosouser\AppData\Local\Programs\Fiddler\Inspectors\
+
+--------------------
 To use:
--------
+--------------------
 
-When this is run you should see an "EAS XML" tab listed in Fiddler.  When ActiveSync content is 
-being viewed you should see the decoded content in the inspector.
+After intalling the EASInspectorFiddler.dll just start Fiddler and either trace or load a Fiddler trace file.
 
-------------
+Select a line/frame of ActiveSync (EAS) traffic.  On the right is a horisontally split window which shows requests at the top
+and responses starting in the middle.  You should see an "EAS XML" tab listed in each of these sections. Click on 
+the "EAS XML" tabs of these sections".  When ActiveSync content is being viewed you should see the decoded content in the inspector.
+
+--------------------
 Information:
-------------
+--------------------
 
 Most of the code comes from the Exchange Server Interoperability Guidance samples for Activesync, in particular:
 
@@ -65,6 +75,9 @@ Here is information on licensing:
 
 	Microsoft Expands Exchange ActiveSync Licensing Program
 	https://news.microsoft.com/2008/12/18/microsoft-expands-exchange-activesync-licensing-program/
+
+	Client-Side Exchange ActiveSync (EAS) Developers Support
+	https://devblogs.microsoft.com/premier-developer/client-side-exchange-activesync-eas-developers-support-options/
  
 This article covers basic information on ActiveSync:
 
@@ -73,6 +86,7 @@ This article covers basic information on ActiveSync:
  
 --------------------
 NOTE:
+--------------------
 
 This code is not supported by anyone and exists purely for educational purposes.  If you are building an ActiveSync 
 application which is going to be commercialized then you really need to look into licensing.
@@ -129,3 +143,6 @@ content type starting with application/vnd.ms-sync
 
 10/14/2022
     Working on new release - 1.5
+	Clean-up on project
+	Updated Notes.txt
+	
