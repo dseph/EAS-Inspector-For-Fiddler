@@ -8,7 +8,7 @@ To compile:
 	Check the Post-event command line settings on the Build Events tab of the project's 
 	properties to be sure that the paths map to the Inspector folder of fiddler.
 
-	Run Visual Studio 2010 with Admin privlidges. This is needed for the copying of the
+	Run Visual Studio with Admin privlidges. This is needed for the copying of the
 	application DDL to Fiddler's Inspector folder.
 
 	Check and set the reference to Fiddler to match the path to the Fiddler.exe 
