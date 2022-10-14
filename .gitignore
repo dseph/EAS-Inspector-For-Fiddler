@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/EasInspector/bin/Debug
+/EasInspector/.vs/EasInspector/v16
+/.vs
+/EasInspector/obj/Debug
