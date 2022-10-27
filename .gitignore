@@ -6,3 +6,5 @@
 /EasInspector/.vs/EasInspector/v16
 /.vs
 /EasInspector/obj/Debug
+/EasInspector/obj/Release
+/EasInspector/bin/Release
