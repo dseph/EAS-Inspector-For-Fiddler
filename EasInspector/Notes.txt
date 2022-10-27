@@ -145,4 +145,8 @@ content type starting with application/vnd.ms-sync
     Working on new release - 1.5
 	Clean-up on project
 	Updated Notes.txt
+
+10/27/2022
+    Releasing build  1.5.0.0
+
 	
